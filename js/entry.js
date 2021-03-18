@@ -7,12 +7,15 @@ const entriesListElement = document.querySelector('.pictures');
 const entryTemplate = document.querySelector('#picture').content.querySelector('.picture');
 const entriesList = createEntries(ENTRIES_VALUE);
 
-const entriesElementList = entriesList.map(({url, likes, comments, description}) => {
+const entriesElementList = entriesList.map((entry) => {
   const entryElement = entryTemplate.cloneNode(true);
-  entryElement.querySelector('.picture__img').setAttribute('src', url);
-  entryElement.querySelector('.picture__comments').textContent =  comments.length;
-  entryElement.querySelector('.picture__likes').textContent = likes;
-  entryElement.addEventListener('click', onPictureClick(url, likes, comments, description))
+  entryElement.querySelector('.picture__img').setAttribute('src', entry.url);
+  entryElement.querySelector('.picture__comments').textContent =  entry.comments.length;
+  entryElement.querySelector('.picture__likes').textContent = entry.likes;
+  entryElement.addEventListener('click', (evt) => {
+    evt.preventDefault();
+    onPictureClick(entry);
+  })
   return entryElement;
 });
 
