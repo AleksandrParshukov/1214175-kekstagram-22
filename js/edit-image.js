@@ -1,6 +1,6 @@
 /* global noUiSlider:readonly */
 const SLIDER_PARAMETERS = {
-  'effect-chrome': {
+  'chrome': {
     range: {
       'min': 0,
       'max': 1,
@@ -9,7 +9,7 @@ const SLIDER_PARAMETERS = {
     start: [1],
     connect: 'lower',
   },
-  'effect-sepia': {
+  'sepia': {
     range: {
       'min': 0,
       'max': 1,
@@ -18,7 +18,7 @@ const SLIDER_PARAMETERS = {
     start: [1],
     connect: 'lower',
   },
-  'effect-marvin': {
+  'marvin': {
     range: {
       'min': 0,
       'max': 100,
@@ -35,7 +35,7 @@ const SLIDER_PARAMETERS = {
       },
     },
   },
-  'effect-phobos': {
+  'phobos': {
     range: {
       'min': 0,
       'max': 3,
@@ -52,7 +52,7 @@ const SLIDER_PARAMETERS = {
       },
     },
   },
-  'effect-heat': {
+  'heat': {
     range: {
       'min': 1,
       'max': 3,
@@ -62,52 +62,42 @@ const SLIDER_PARAMETERS = {
     connect: 'lower',
   },
 }
-const FILTER_PARAMETERS = {
-  'effect-chrome': {
-    filter: 'grayscale',
-    class: 'effects__preview--chrome',
-  },
-  'effect-sepia': {
-    filter: 'sepia',
-    class: 'effects__preview--sepia',
-  },
-  'effect-marvin': {
-    filter: 'invert',
-    class: 'effects__preview--marvin',
-  },
-  'effect-phobos': {
-    filter: 'blur',
-    class: 'effects__preview--phobos',
-  },
-  'effect-heat': {
-    filter: 'brightness',
-    class: 'effects__preview--heat',
-  },
+const FILTERS = {
+  'chrome': 'grayscale',
+  'sepia': 'sepia',
+  'marvin': 'invert',
+  'phobos':'blur',
+  'heat':'brightness',
 }
 
+const effectLevel = document.querySelector('.effect-level');
 const effectLevelValue = document.querySelector('.effect-level__value');
 const effectLevelSlider = document.querySelector('.effect-level__slider');
 const effectsRadio = document.querySelectorAll('.effects__radio');
 const imgUploadPreview = document.querySelector('.img-upload__preview img');
 
+effectLevel.classList.add('hidden');
+
 for (let i = 0; i < effectsRadio.length; i++) {
 
   effectsRadio[i].addEventListener('click', (evt) => {
-    const currentEffect = effectsRadio[i].getAttribute('id');
+    const currentEffect = effectsRadio[i].getAttribute('value');
 
     evt.preventDefault();
 
     if (effectLevelSlider.noUiSlider !== undefined) {
       effectLevelSlider.noUiSlider.destroy();
+      effectLevel.classList.add('hidden');
       removeFilters();
     }
 
-    if (currentEffect !== 'effect-none'){
+    if (currentEffect !== 'none'){
+      effectLevel.classList.remove('hidden');
       noUiSlider.create(effectLevelSlider, SLIDER_PARAMETERS[currentEffect]);
-      imgUploadPreview.classList.add(FILTER_PARAMETERS[currentEffect].class);
+      imgUploadPreview.classList.add(`effects__preview--${currentEffect}`);
 
       effectLevelSlider.noUiSlider.on('update', (value, handle, unencoded) => {
-        imgUploadPreview.style.filter = FILTER_PARAMETERS[currentEffect].filter + '(' + value[handle] + ')';
+        imgUploadPreview.style.filter = `${FILTERS[currentEffect]}(${value[handle]})`;
         effectLevelValue.setAttribute('value', unencoded[handle]);
       });
     }
@@ -118,8 +108,8 @@ for (let i = 0; i < effectsRadio.length; i++) {
 
 
 function removeFilters () {
-  for (let key in FILTER_PARAMETERS) {
-    imgUploadPreview.classList.remove(FILTER_PARAMETERS[key].class);
+  for (let key in FILTERS) {
+    imgUploadPreview.classList.remove(`effects__preview--${key}`);
   }
   imgUploadPreview.style.filter = 'none';
 }
