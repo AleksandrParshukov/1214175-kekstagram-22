@@ -53,3 +53,5 @@ scaleControlBigger.addEventListener('click', () => {
     imgUploadPreview.style.transform = 'scale(' + (currentScaleValue / 100) + ')';
   }
 })
+
+export {MODAL_CLOSE_KEY}
