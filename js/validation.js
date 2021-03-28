@@ -1,4 +1,4 @@
-import {MODAL_CLOSE_KEY} from './upload-image.js'
+import {isEscEvent} from './util.js';
 
 const MAX_HASHTAGS_VALUE = 5;
 const MAX_HASHTAGS_LENGTH = 20;
@@ -25,7 +25,7 @@ textHashtags.addEventListener('input', () => {
     textHashtags.setCustomValidity(`Нельзя указать больше ${MAX_HASHTAGS_VALUE} хэш-тегов`);
   } else if (!isUnique(hashtags)) {
     textHashtags.setCustomValidity('Хеш-теги не должны повторяться');
-  } 
+  }
 
   textHashtags.reportValidity();
 
@@ -49,7 +49,7 @@ function isUnique (array) {
 }
 
 function stopEvent (event) {
-  if(event.key === MODAL_CLOSE_KEY) {
+  if(isEscEvent(event)) {
     event.stopPropagation();
   }
 }

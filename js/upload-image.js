@@ -1,18 +1,22 @@
-import './edit-image.js'
+import './edit-image.js';
+import {isEscEvent} from './util.js';
+import {sendData} from './server.js';
 
-const MODAL_CLOSE_KEY = 'Escape';
 const SCALE_CONTROL_VALUE_STEP = 25;
 const MIN_SCALE_CONTROL_VALUE = 25;
 const MAX_SCALE_CONTROL_VALUE = 100;
 
 const body = document.querySelector('body');
+const imgUploadForm = body.querySelector('.img-upload__form');
 const imageUploadInput = body.querySelector('.img-upload__input');
-const imageUploadOverlay = body.querySelector('.img-upload__overlay');
-const imgUploadCancel = body.querySelector('.img-upload__cancel');
-const scaleControlSmaller = body.querySelector('.scale__control--smaller');
-const scaleControlBigger = body.querySelector('.scale__control--bigger');
-const scaleControlValue = body.querySelector('.scale__control--value');
-const imgUploadPreview = body.querySelector('.img-upload__preview img');
+const imageUploadOverlay = imgUploadForm.querySelector('.img-upload__overlay');
+const imgUploadCancel = imgUploadForm.querySelector('.img-upload__cancel');
+const scaleControlSmaller = imgUploadForm.querySelector('.scale__control--smaller');
+const scaleControlBigger = imgUploadForm.querySelector('.scale__control--bigger');
+const scaleControlValue = imgUploadForm.querySelector('.scale__control--value');
+const imgUploadPreview = imgUploadForm.querySelector('.img-upload__preview img');
+const errorTemplate = document.querySelector('#error').content.querySelector('.error');
+const successTemplate = document.querySelector('#success').content.querySelector('.success');
 
 let currentScaleValue = MAX_SCALE_CONTROL_VALUE;
 
@@ -25,16 +29,12 @@ imageUploadInput.addEventListener('change', () => {
 })
 
 imgUploadCancel.addEventListener('click', () => {
-  body.classList.remove('modal-open');
-  imageUploadOverlay.classList.add('hidden');
-  imageUploadInput.value = '';
+  closeModal();
 })
 
 document.addEventListener('keydown', (evt) => {
-  if(evt.key === MODAL_CLOSE_KEY) {
-    body.classList.remove('modal-open');
-    imageUploadOverlay.classList.add('hidden');
-    imageUploadInput.value = '';
+  if(isEscEvent(evt)) {
+    closeModal();
   }
 })
 
@@ -54,4 +54,33 @@ scaleControlBigger.addEventListener('click', () => {
   }
 })
 
-export {MODAL_CLOSE_KEY}
+imgUploadForm.addEventListener('submit', (evt) => {
+  evt.preventDefault();
+
+  sendData(
+    () => onSuccess(),
+    () => showMessage(errorTemplate),
+    new FormData(evt.target),
+  );
+})
+
+
+function onSuccess () {
+  closeModal();
+  showMessage(successTemplate);
+}
+
+function closeModal () {
+  body.classList.remove('modal-open');
+  imageUploadOverlay.classList.add('hidden');
+  imgUploadForm.reset();
+}
+
+function showMessage (template) {
+  const messageElement = template.cloneNode(true);
+  body.appendChild(messageElement);
+
+  messageElement.querySelector('button').addEventListener('click', () => {
+    body.removeChild(messageElement);
+  })
+}
