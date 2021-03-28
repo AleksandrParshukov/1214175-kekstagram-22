@@ -1,5 +1,8 @@
 import {MODAL_CLOSE_KEY} from './upload-image.js'
 
+const MAX_HASHTAGS_VALUE = 5;
+const MAX_HASHTAGS_LENGTH = 20;
+
 const textHashtags = document.querySelector('.text__hashtags');
 const textDescription = document.querySelector('.text__description');
 
@@ -11,18 +14,20 @@ textHashtags.addEventListener('input', () => {
       textHashtags.setCustomValidity('Хэш-теги должны начинаться с решётки ("#")');
     } else if (hashtag.length === 1) {
       textHashtags.setCustomValidity('Хеш-тег не может состоять только из одной решётки ("#")');
-    } else if (hashtag.length > 20) {
-      textHashtags.setCustomValidity('Максимальная длина одного хэш-тега 20 символов');
-    } else if (hashtags.length > 5) {
-      textHashtags.setCustomValidity('Нельзя указать больше пяти хэш-тегов');
-    } else if (!isUnique(hashtags)) {
-      textHashtags.setCustomValidity('Хеш-теги не должны повторяться');
+    } else if (hashtag.length > MAX_HASHTAGS_LENGTH) {
+      textHashtags.setCustomValidity(`Максимальная длина одного хэш-тега ${MAX_HASHTAGS_LENGTH} символов`);
     } else {
       textHashtags.setCustomValidity('');
     }
-
-    textHashtags.reportValidity();
   })
+
+  if (hashtags.length > MAX_HASHTAGS_VALUE) {
+    textHashtags.setCustomValidity(`Нельзя указать больше ${MAX_HASHTAGS_VALUE} хэш-тегов`);
+  } else if (!isUnique(hashtags)) {
+    textHashtags.setCustomValidity('Хеш-теги не должны повторяться');
+  } 
+
+  textHashtags.reportValidity();
 
 })
 
