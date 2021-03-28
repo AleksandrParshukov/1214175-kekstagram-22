@@ -1,12 +1,22 @@
+/* global _:readonly */
 import {onPictureClick} from './big-picture.js';
 import {getData} from './server.js';
+import {onFilterDefaultClick, onFilterRandomClick, onFilterDiscussedClick} from './filter.js';
+
+const RERENDER_DELAY = 500;
 
 const entriesListElement = document.querySelector('.pictures');
 const entryTemplate = document.querySelector('#picture').content.querySelector('.picture');
 
-getData(renderEntries);
+getData((entries) => {
+  renderEntries(entries);
+  onFilterDefaultClick(entries, _.debounce(renderEntries, RERENDER_DELAY));
+  onFilterRandomClick(entries, _.debounce(renderEntries, RERENDER_DELAY));
+  onFilterDiscussedClick(entries, _.debounce(renderEntries, RERENDER_DELAY));
+});
 
 function renderEntries (entriesList) {
+  removeEntries();
   const entriesElementList = entriesList.map((entry) => {
     const entryElement = entryTemplate.cloneNode(true);
     entryElement.querySelector('.picture__img').setAttribute('src', entry.url);
@@ -29,6 +39,13 @@ function appendEntries(entries) {
   })
 
   entriesListElement.appendChild(entriesListFragment);
+}
+
+function removeEntries () {
+  for (let i = entriesListElement.children.length - 1; i > 1; i--) {
+    const child = entriesListElement.children[i];
+    child.parentElement.removeChild(child);
+  }
 }
 
 export {renderEntries}
