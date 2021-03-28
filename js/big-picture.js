@@ -40,7 +40,7 @@ function onPictureClick (entry) {
   commentsCount.textContent =  entry.comments.length;
   socialCaption.textContent = entry.description;
   socialCommentCount.classList.add('hidden');
-  commentsLoader.classList.add('hidden');
+  commentsLoader.classList.remove('hidden');
 
   const comments = entry.comments.map(({avatar, message, name}) => {
     const commentElement = socialCommentTemplate.cloneNode(true);
@@ -50,7 +50,11 @@ function onPictureClick (entry) {
     return commentElement;
   });
 
-  appendComments (comments);
+  appendComments(comments);
+
+  commentsLoader.addEventListener('click', () => {
+    appendComments(comments);
+  })
 
   function appendComments (comments) {
     const commentsListFragment = document.createDocumentFragment();
@@ -61,6 +65,10 @@ function onPictureClick (entry) {
     }
 
     socialComments.appendChild(commentsListFragment);
+
+    if (commentCounter >= comments.length) {
+      commentsLoader.classList.add('hidden');
+    }
   }
 }
 
