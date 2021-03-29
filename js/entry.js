@@ -1,28 +1,37 @@
-import {createEntries} from './create-entries.js';
+/* global _:readonly */
 import {onPictureClick} from './big-picture.js';
+import {getData} from './server.js';
+import {onFilterDefaultClick, onFilterRandomClick, onFilterDiscussedClick} from './filter.js';
 
-const ENTRIES_VALUE = 25;
+const RERENDER_DELAY = 500;
 
 const entriesListElement = document.querySelector('.pictures');
 const entryTemplate = document.querySelector('#picture').content.querySelector('.picture');
-const entriesList = createEntries(ENTRIES_VALUE);
 
-const entriesElementList = entriesList.map((entry) => {
-  const entryElement = entryTemplate.cloneNode(true);
-  entryElement.querySelector('.picture__img').setAttribute('src', entry.url);
-  entryElement.querySelector('.picture__comments').textContent =  entry.comments.length;
-  entryElement.querySelector('.picture__likes').textContent = entry.likes;
-  entryElement.addEventListener('click', (evt) => {
-    evt.preventDefault();
-    onPictureClick(entry);
-  })
-  return entryElement;
+getData((entries) => {
+  renderEntries(entries);
+  onFilterDefaultClick(entries, _.debounce(renderEntries, RERENDER_DELAY));
+  onFilterRandomClick(entries, _.debounce(renderEntries, RERENDER_DELAY));
+  onFilterDiscussedClick(entries, _.debounce(renderEntries, RERENDER_DELAY));
 });
 
-renderEntries(entriesElementList);
+function renderEntries (entriesList) {
+  removeEntries();
+  const entriesElementList = entriesList.map((entry) => {
+    const entryElement = entryTemplate.cloneNode(true);
+    entryElement.querySelector('.picture__img').setAttribute('src', entry.url);
+    entryElement.querySelector('.picture__comments').textContent =  entry.comments.length;
+    entryElement.querySelector('.picture__likes').textContent = entry.likes;
+    entryElement.addEventListener('click', (evt) => {
+      evt.preventDefault();
+      onPictureClick(entry);
+    })
+    return entryElement;
+  });
+  appendEntries(entriesElementList);
+}
 
-
-function renderEntries(entries) {
+function appendEntries(entries) {
   const entriesListFragment = document.createDocumentFragment();
 
   entries.forEach((value) => {
@@ -31,3 +40,12 @@ function renderEntries(entries) {
 
   entriesListElement.appendChild(entriesListFragment);
 }
+
+function removeEntries () {
+  for (let i = entriesListElement.children.length - 1; i > 1; i--) {
+    const child = entriesListElement.children[i];
+    child.parentElement.removeChild(child);
+  }
+}
+
+export {renderEntries}
