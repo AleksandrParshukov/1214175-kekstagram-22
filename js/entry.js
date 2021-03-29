@@ -1,7 +1,7 @@
 /* global _:readonly */
 import {onPictureClick} from './big-picture.js';
 import {getData} from './server.js';
-import {onFilterDefaultClick, onFilterRandomClick, onFilterDiscussedClick} from './filter.js';
+import {onImgFiltersClick} from './filter.js';
 
 const RERENDER_DELAY = 500;
 
@@ -10,9 +10,7 @@ const entryTemplate = document.querySelector('#picture').content.querySelector('
 
 getData((entries) => {
   renderEntries(entries);
-  onFilterDefaultClick(entries, _.debounce(renderEntries, RERENDER_DELAY));
-  onFilterRandomClick(entries, _.debounce(renderEntries, RERENDER_DELAY));
-  onFilterDiscussedClick(entries, _.debounce(renderEntries, RERENDER_DELAY));
+  onImgFiltersClick(entries, _.debounce(renderEntries, RERENDER_DELAY));
 });
 
 function renderEntries (entriesList) {

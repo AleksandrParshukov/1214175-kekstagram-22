@@ -6,30 +6,44 @@ const filterRandom = imgFilters.querySelector('#filter-random');
 const filterDiscussed = imgFilters.querySelector('#filter-discussed');
 
 
-function onFilterDefaultClick (entries, cb) {
-  filterDefault.addEventListener('click', () => {
-    updateActiveClass(filterDefault);
-    cb(entries);
+function onImgFiltersClick (entries, cb) {
+  imgFilters.addEventListener('click', (evt) => {
+    const target = evt.target.getAttribute('id');
+    switch (target) {
+      case 'filter-default': {
+        onFilterDefaultClick(entries, cb);
+        break;
+      }
+      case 'filter-random': {
+        onFilterRandomClick(entries, cb);
+        break;
+      }
+      case 'filter-discussed': {
+        onFilterDiscussedClick(entries, cb);
+        break;
+      }
+    }
   })
+}
+
+function onFilterDefaultClick (entries, cb) {
+  updateActiveClass(filterDefault);
+  cb(entries);
 }
 
 function onFilterRandomClick (entries, cb) {
-  filterRandom.addEventListener('click', () => {
-    updateActiveClass(filterRandom);
-    cb(entries
-      .slice()
-      .sort(() => Math.random() - 0.5)
-      .slice(0, RANDOM_ENTRIES_VALUE));
-  })
+  updateActiveClass(filterRandom);
+  cb(entries
+    .slice()
+    .sort(() => Math.random() - 0.5)
+    .slice(0, RANDOM_ENTRIES_VALUE));
 }
 
 function onFilterDiscussedClick (entries, cb) {
-  filterDiscussed.addEventListener('click', () => {
-    updateActiveClass(filterDiscussed);
-    cb(entries
-      .slice()
-      .sort(compareEntries));
-  })
+  updateActiveClass(filterDiscussed);
+  cb(entries
+    .slice()
+    .sort(compareEntries));
 }
 
 function compareEntries (entryA, entryB) {
@@ -49,4 +63,4 @@ function updateActiveClass (element) {
   element.classList.add('img-filters__button--active');
 }
 
-export {showFilter, onFilterDefaultClick, onFilterRandomClick, onFilterDiscussedClick}
+export {showFilter, onImgFiltersClick}

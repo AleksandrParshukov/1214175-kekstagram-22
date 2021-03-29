@@ -6,12 +6,10 @@ const body = document.querySelector('body');
 const bigPicture = body.querySelector('.big-picture');
 const bigPictureImg = bigPicture.querySelector('.big-picture__img img');
 const likesCount = bigPicture.querySelector('.likes-count');
-const commentsCount = bigPicture.querySelector('.comments-count');
 const socialComments = bigPicture.querySelector('.social__comments');
 const socialCommentTemplate = socialComments.querySelector('.social__comment');
 const socialCaption = bigPicture.querySelector('.social__caption');
 const socialCommentCount = bigPicture.querySelector('.social__comment-count');
-const commentsLoader = bigPicture.querySelector('.comments-loader');
 const bigPictureCancel = bigPicture.querySelector('.big-picture__cancel');
 
 bigPictureCancel.addEventListener('click', () => {
@@ -26,6 +24,8 @@ document.addEventListener('keydown', (evt) => {
 
 
 function onPictureClick (entry) {
+  const commentsCount = bigPicture.querySelector('.comments-count');
+  const commentsLoader = bigPicture.querySelector('.comments-loader');
   let commentCounter = 0;
 
   for (let i = socialComments.children.length - 1; i >= 0; i--) {
@@ -39,7 +39,6 @@ function onPictureClick (entry) {
   likesCount.textContent = entry.likes;
   commentsCount.textContent =  entry.comments.length;
   socialCaption.textContent = entry.description;
-  socialCommentCount.classList.add('hidden');
   commentsLoader.classList.remove('hidden');
 
   const comments = entry.comments.map(({avatar, message, name}) => {
@@ -50,13 +49,11 @@ function onPictureClick (entry) {
     return commentElement;
   });
 
-  appendComments(comments);
+  appendComments();
 
-  commentsLoader.addEventListener('click', () => {
-    appendComments(comments);
-  })
+  commentsLoader.addEventListener('click', appendComments);
 
-  function appendComments (comments) {
+  function appendComments () {
     const commentsListFragment = document.createDocumentFragment();
     const maxCommentCounter = commentCounter + COMMENTS_COUNTER_STEP < comments.length ? commentCounter + COMMENTS_COUNTER_STEP : comments.length;
 
@@ -65,9 +62,11 @@ function onPictureClick (entry) {
     }
 
     socialComments.appendChild(commentsListFragment);
+    socialCommentCount.innerHTML = socialCommentCount.innerHTML.replace(/\d+/, maxCommentCounter);
 
     if (commentCounter >= comments.length) {
       commentsLoader.classList.add('hidden');
+      commentsLoader.removeEventListener('click', appendComments);
     }
   }
 }
