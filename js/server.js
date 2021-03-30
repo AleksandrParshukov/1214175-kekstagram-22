@@ -3,17 +3,19 @@ import {showFilter} from './filter.js';
 
 function getData (onSuccess) {
   fetch('https://22.javascript.pages.academy/kekstagram/data')
-    .then((response) => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        showAlert(`${response.status} ${response.statusText}`);
-      }
-    })
-    .then((entries) => {
-      onSuccess(entries);
-    })
+    .then(decodeData)
+    .then(onSuccess)
     .then(showFilter());
+
+
+  function decodeData (response) {
+    if (response.ok) {
+      return response.json();
+    } else {
+      showAlert(`${response.status} ${response.statusText}`);
+    }
+  }
+
 }
 
 function sendData (onSuccess, onFail, body) {
@@ -24,16 +26,16 @@ function sendData (onSuccess, onFail, body) {
       body,
     },
   )
-    .then((response) => {
-      if (response.ok) {
-        onSuccess();
-      } else {
-        onFail();
-      }
-    })
-    .catch(() => {
+    .then(showResult)
+    .catch(onFail);
+
+  function showResult (response) {
+    if (response.ok) {
+      onSuccess();
+    } else {
       onFail();
-    });
+    }
+  }
 }
 
 export {getData, sendData};

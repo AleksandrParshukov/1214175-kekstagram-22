@@ -78,38 +78,40 @@ const imgUploadPreview = document.querySelector('.img-upload__preview img');
 
 effectLevel.classList.add('hidden');
 
-for (let i = 0; i < effectsRadio.length; i++) {
+effectsRadio.forEach(setRadioEvent);
 
-  effectsRadio[i].addEventListener('click', (evt) => {
-    const currentEffect = effectsRadio[i].getAttribute('value');
-
-    evt.preventDefault();
-
-    if (effectLevelSlider.noUiSlider !== undefined) {
-      effectLevelSlider.noUiSlider.destroy();
-      effectLevel.classList.add('hidden');
-      removeFilters();
-    }
-
-    if (currentEffect !== 'none'){
-      effectLevel.classList.remove('hidden');
-      noUiSlider.create(effectLevelSlider, SLIDER_PARAMETERS[currentEffect]);
-      imgUploadPreview.classList.add(`effects__preview--${currentEffect}`);
-
-      effectLevelSlider.noUiSlider.on('update', (value, handle, unencoded) => {
-        imgUploadPreview.style.filter = `${FILTERS[currentEffect]}(${value[handle]})`;
-        effectLevelValue.setAttribute('value', unencoded[handle]);
-      });
-    }
-
-  })
-
+function setRadioEvent (radio) {
+  radio.addEventListener('click', onRadioClick);
 }
 
+function onRadioClick (evt) {
+  const currentEffect = evt.target.getAttribute('value');
+
+  evt.preventDefault();
+  removeFilters();
+
+  if (currentEffect !== 'none'){
+    effectLevel.classList.remove('hidden');
+    noUiSlider.create(effectLevelSlider, SLIDER_PARAMETERS[currentEffect]);
+    imgUploadPreview.classList.add(`effects__preview--${currentEffect}`);
+
+    effectLevelSlider.noUiSlider.on('update', (value, handle, unencoded) => {
+      imgUploadPreview.style.filter = `${FILTERS[currentEffect]}(${value[handle]})`;
+      effectLevelValue.setAttribute('value', unencoded[handle]);
+    });
+  }
+
+}
 
 function removeFilters () {
   for (let key in FILTERS) {
     imgUploadPreview.classList.remove(`effects__preview--${key}`);
   }
   imgUploadPreview.style.filter = 'none';
+  if (effectLevelSlider.noUiSlider !== undefined) {
+    effectLevelSlider.noUiSlider.destroy();
+  }
+  effectLevel.classList.add('hidden');
 }
+
+export {removeFilters}

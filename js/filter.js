@@ -7,7 +7,9 @@ const filterDiscussed = imgFilters.querySelector('#filter-discussed');
 
 
 function onImgFiltersClick (entries, cb) {
-  imgFilters.addEventListener('click', (evt) => {
+  imgFilters.addEventListener('click', onFiltersClick);
+
+  function onFiltersClick (evt) {
     const target = evt.target.getAttribute('id');
     switch (target) {
       case 'filter-default': {
@@ -23,7 +25,7 @@ function onImgFiltersClick (entries, cb) {
         break;
       }
     }
-  })
+  }
 }
 
 function onFilterDefaultClick (entries, cb) {

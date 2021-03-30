@@ -8,14 +8,21 @@ const RERENDER_DELAY = 500;
 const entriesListElement = document.querySelector('.pictures');
 const entryTemplate = document.querySelector('#picture').content.querySelector('.picture');
 
-getData((entries) => {
+getData(getDataCB);
+
+function getDataCB (entries) {
   renderEntries(entries);
   onImgFiltersClick(entries, _.debounce(renderEntries, RERENDER_DELAY));
-});
+}
 
 function renderEntries (entriesList) {
   removeEntries();
-  const entriesElementList = entriesList.map((entry) => {
+  const entriesElementList = entriesList.map(createElement);
+
+  appendEntries(entriesElementList);
+
+
+  function createElement (entry) {
     const entryElement = entryTemplate.cloneNode(true);
     entryElement.querySelector('.picture__img').setAttribute('src', entry.url);
     entryElement.querySelector('.picture__comments').textContent =  entry.comments.length;
@@ -25,18 +32,20 @@ function renderEntries (entriesList) {
       onPictureClick(entry);
     })
     return entryElement;
-  });
-  appendEntries(entriesElementList);
+  }
+
 }
 
 function appendEntries(entries) {
   const entriesListFragment = document.createDocumentFragment();
 
-  entries.forEach((value) => {
-    entriesListFragment.appendChild(value);
-  })
-
+  entries.forEach(appendEntries)
   entriesListElement.appendChild(entriesListFragment);
+
+
+  function appendEntries (value) {
+    entriesListFragment.appendChild(value);
+  }
 }
 
 function removeEntries () {

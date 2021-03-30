@@ -1,4 +1,4 @@
-import './edit-image.js';
+import {removeFilters} from './edit-image.js';
 import {isEscEvent} from './util.js';
 import {sendData} from './server.js';
 
@@ -21,66 +21,94 @@ const successTemplate = document.querySelector('#success').content.querySelector
 let currentScaleValue = MAX_SCALE_CONTROL_VALUE;
 
 scaleControlValue.setAttribute('value', MAX_SCALE_CONTROL_VALUE + '%');
+imageUploadInput.addEventListener('change', onUploadInputChange);
 
 
-imageUploadInput.addEventListener('change', () => {
+function onUploadInputChange () {
   body.classList.add('modal-open');
   imageUploadOverlay.classList.remove('hidden');
-})
+  imgUploadCancel.addEventListener('click', onUploadCancelClick);
+  document.addEventListener('keydown', onDocumentKeydown);
+  scaleControlSmaller.addEventListener('click', onScaleSmallerClick);
+  scaleControlBigger.addEventListener('click', onScaleBiggerClick);
+  imgUploadForm.addEventListener('submit', onUploadFormSubmit);
+}
 
-imgUploadCancel.addEventListener('click', () => {
+function onUploadCancelClick () {
   closeModal();
-})
+}
 
-document.addEventListener('keydown', (evt) => {
+function onDocumentKeydown (evt) {
   if(isEscEvent(evt)) {
     closeModal();
   }
-})
+}
 
-scaleControlSmaller.addEventListener('click', () => {
+function onScaleSmallerClick () {
   if (currentScaleValue > MIN_SCALE_CONTROL_VALUE) {
     currentScaleValue -= SCALE_CONTROL_VALUE_STEP;
     scaleControlValue.setAttribute('value', currentScaleValue + '%');
     imgUploadPreview.style.transform = 'scale(' + (currentScaleValue / 100) + ')';
   }
-})
+}
 
-scaleControlBigger.addEventListener('click', () => {
+function onScaleBiggerClick () {
   if (currentScaleValue < MAX_SCALE_CONTROL_VALUE) {
     currentScaleValue += SCALE_CONTROL_VALUE_STEP;
     scaleControlValue.setAttribute('value', currentScaleValue + '%');
     imgUploadPreview.style.transform = 'scale(' + (currentScaleValue / 100) + ')';
   }
-})
+}
 
-imgUploadForm.addEventListener('submit', (evt) => {
+function onUploadFormSubmit (evt) {
   evt.preventDefault();
 
   sendData(
-    () => onSuccess(),
+    () => showMessage(successTemplate),
     () => showMessage(errorTemplate),
     new FormData(evt.target),
   );
-})
-
-
-function onSuccess () {
-  closeModal();
-  showMessage(successTemplate);
 }
 
 function closeModal () {
   body.classList.remove('modal-open');
   imageUploadOverlay.classList.add('hidden');
+  scaleControlSmaller.removeEventListener('click', onScaleSmallerClick);
+  scaleControlBigger.removeEventListener('click', onScaleBiggerClick);
+  imgUploadForm.removeEventListener('submit', onUploadFormSubmit);
+  imgUploadCancel.removeEventListener('click', onUploadCancelClick);
+  document.removeEventListener('keydown', onDocumentKeydown);
   imgUploadForm.reset();
+  removeFilters();
 }
 
 function showMessage (template) {
   const messageElement = template.cloneNode(true);
+  const messageButton = messageElement.querySelector('button');
   body.appendChild(messageElement);
+  closeModal();
 
-  messageElement.querySelector('button').addEventListener('click', () => {
+  messageButton.addEventListener('click', onMessageButtonClick);
+  document.addEventListener('keydown', onMessageKeydown);
+  document.addEventListener('click', onMessageClick);
+
+  function onMessageButtonClick () {
     body.removeChild(messageElement);
-  })
+    messageButton.removeEventListener('click', onMessageButtonClick);
+  }
+
+  function onMessageKeydown (evt) {
+    if(isEscEvent(evt)) {
+      body.removeChild(messageElement);
+      document.removeEventListener('click', onMessageKeydown);
+    }
+  }
+
+  function onMessageClick (evt) {
+    if (evt.target === messageElement) {
+      body.removeChild(messageElement);
+      document.removeEventListener('click', onMessageClick);
+    }
+  }
+
 }
